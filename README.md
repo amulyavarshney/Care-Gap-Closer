@@ -325,7 +325,7 @@ Three layers, in order:
 ## 📦 What's in here
 
 ```
-Agent_Assemble/
+Care-Gap-Closer/
 ├── care_gap_mcp/      # MCP server  — 6 tools, FastMCP + POFastMCP, SHARP headers
 │   ├── knowledge_base/    # care_gap_rules.yaml + terminology.yaml (edit rules here, no code)
 │   ├── prompts/           # Markdown prompts for rationale + outreach tone
