@@ -1,6 +1,6 @@
 # Care Gap Closer MCP Server
 
-A SHARP-on-MCP server that exposes five tools for USPSTF-aligned preventive
+A SHARP-on-MCP server that exposes six tools for USPSTF-aligned preventive
 care-gap detection and patient outreach. Built on `fastmcp` with the Prompt
 Opinion `POFastMCP` extension for FHIR context.
 
@@ -12,6 +12,7 @@ Opinion `POFastMCP` extension for FHIR context.
 | `ListActiveConditions` | Active problem list with SNOMED + ICD-10 codes | No |
 | `ListRecentObservations` | Labs, vitals, and screening procedures within N months | No |
 | `FindCareGaps` | **Rule engine** identifies USPSTF gaps; **Gemini** authors the per-patient clinical rationale | Yes |
+| `GetPatientRiskSummary` | Severity rollup (`risk_level` + counts by severity) — skips per-gap rationale for speed | No |
 | `DraftOutreachMessage` | Gemini drafts SMS + portal copy for a specific gap, sixth-grade reading level | Yes |
 
 The rule engine is deterministic — we never let the LLM invent a gap. The LLM
@@ -24,6 +25,17 @@ rule-based systems can't do.
 - **Hypertension BP overdue** — active HTN (I10–I15) + no LOINC 8480-6 in 12mo
 - **Colorectal screening overdue** — age 45–75 + no colonoscopy in 10y / FIT in 1y
 - **Mammography overdue** — female, age 40–74 + no mammogram in 24mo
+- **Cervical screening overdue** — female, age 21–65 + no Pap in 3y / HPV co-test in 5y
+- **Lipid panel overdue** — age 40+ + no lipid panel in 5y
+- **Lung cancer screening overdue** — smoker, age 50–80 + no LDCT in 1y
+- **Osteoporosis screening overdue** — female, age 65+ + no DEXA in 24mo
+- **Depression screening overdue** — age 18+ + no PHQ-9 in 12mo
+- **Influenza, Tdap, pneumococcal, and shingles vaccines overdue** — age/interval-gated per ACIP schedule
+
+See [`knowledge_base/care_gap_rules.yaml`](knowledge_base/care_gap_rules.yaml) for
+the full rule definitions — new rules that fit an existing threshold shape
+(`observation`, `procedure`, `procedure_any`, `immunization`) are pure YAML
+edits, no code changes required.
 
 ## Run locally
 

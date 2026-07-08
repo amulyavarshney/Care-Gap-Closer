@@ -29,6 +29,7 @@ and surfacing a concise summary to the clinician.
 - `list_active_conditions`
 - `list_recent_observations`
 - `find_care_gaps`
+- `get_patient_risk_summary`
 - `draft_outreach_message`
 
 ## Run locally
