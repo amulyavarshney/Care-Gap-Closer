@@ -19,3 +19,11 @@ skills:
       Draft patient-facing SMS or portal outreach copy for a specific care
       gap, written at a sixth-grade reading level.
     tags: [outreach, communication, patient-engagement]
+
+  - id: patient-risk-summary
+    name: patient-risk-summary
+    description: >
+      Give a fast, risk-stratified overview of a patient's open USPSTF care
+      gaps — severity breakdown and overall risk level, without full evidence
+      or rationale detail.
+    tags: [care-gaps, risk-stratification, triage]

@@ -15,6 +15,7 @@ from shared.fhir_hook import extract_fhir_context
 from shared.tools import (
     draft_outreach_message,
     find_care_gaps,
+    get_patient_risk_summary,
     list_active_conditions,
     list_recent_observations,
     summarize_patient,
@@ -35,6 +36,7 @@ root_agent = Agent(
         list_active_conditions,
         list_recent_observations,
         find_care_gaps,
+        get_patient_risk_summary,
         draft_outreach_message,
     ],
     before_model_callback=extract_fhir_context,

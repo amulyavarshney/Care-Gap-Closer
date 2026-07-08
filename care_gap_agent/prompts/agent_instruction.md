@@ -30,6 +30,15 @@ If the clinician asks to reach out to the patient about a specific gap:
    - `channel`: `sms`, `portal`, or `both` (default `sms` unless they specify)
 2. Present the returned drafts as quoted text the clinician can copy.
 
+## When asked for a quick risk overview
+
+If the clinician wants a fast read on urgency rather than full gap detail
+(e.g., "how urgent is this patient?", "quick risk overview"), call
+`get_patient_risk_summary` instead of `find_care_gaps`. Present the
+`risk_level`, the severity counts, and the `gap_titles` list. Offer to run
+the full `find_care_gaps` workflow next if they want evidence and rationale
+for any of the listed gaps.
+
 ## When asked for underlying data
 
 Use `list_active_conditions` or `list_recent_observations` only when the

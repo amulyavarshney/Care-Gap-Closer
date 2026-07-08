@@ -5,13 +5,15 @@ load_dotenv()  # populate GOOGLE_API_KEY etc. before tools import google.genai
 from po_fastmcp import POFastMCP
 from tools import register_tools
 
-# SMART scopes the tools need. Patient + Condition + Observation + Procedure
-# cover the rule engine; MedicationRequest is here for future statin-therapy gap.
+# SMART scopes the tools need. Patient + Condition + Observation + Procedure +
+# Immunization cover the rule engine; MedicationRequest is here for future
+# statin-therapy gap.
 fhir_scopes = [
     {"name": "patient/Patient.rs", "required": True},
     {"name": "patient/Condition.rs", "required": True},
     {"name": "patient/Observation.rs", "required": True},
     {"name": "patient/Procedure.rs", "required": True},
+    {"name": "patient/Immunization.rs", "required": True},
     {"name": "patient/MedicationRequest.rs"},
 ]
 

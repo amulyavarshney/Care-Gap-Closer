@@ -43,6 +43,14 @@ hypertension_icd10:
     - "I13"                # Hypertensive heart and CKD
     - "I15"                # Secondary hypertension
 
+tobacco_use_snomed:
+  system: http://snomed.info/sct
+  match: exact
+  codes:
+    - "77176002"           # Smoker
+    - "65568007"           # Cigarette smoker
+    - "428041000124106"    # Current every day smoker
+
 # ── Observation (lab/vital) codes ─────────────────────────────────────────────
 
 a1c_loinc:
@@ -56,6 +64,20 @@ systolic_bp_loinc:
   match: exact
   codes:
     - "8480-6"             # Systolic blood pressure
+
+lipid_panel_loinc:
+  system: http://loinc.org
+  match: exact
+  codes:
+    - "2093-3"             # Total cholesterol
+    - "13457-7"            # LDL cholesterol
+    - "57698-3"            # Lipid panel
+
+phq9_loinc:
+  system: http://loinc.org
+  match: exact
+  codes:
+    - "44249-1"            # PHQ-9 total score
 
 # ── Procedure codes ───────────────────────────────────────────────────────────
 
@@ -81,6 +103,64 @@ mammography_cpt:
     - "77066"              # Diagnostic mammography, bilateral
     - "77067"              # Screening mammography, bilateral
 
+pap_smear_cpt:
+  system: http://www.ama-assn.org/go/cpt
+  match: exact
+  codes:
+    - "88142"              # Cervical cytology, thin layer prep
+    - "88150"              # Cervical cytology, manual screening
+    - "88164"              # Cervical cytology, thin layer, manual screening
+
+hpv_cotest_cpt:
+  system: http://www.ama-assn.org/go/cpt
+  match: exact
+  codes:
+    - "87624"              # HPV high-risk types
+
+lung_ct_screening_cpt:
+  system: http://www.ama-assn.org/go/cpt
+  match: exact
+  codes:
+    - "71271"              # Low-dose CT, lung cancer screening
+
+dexa_scan_cpt:
+  system: http://www.ama-assn.org/go/cpt
+  match: exact
+  codes:
+    - "77080"              # DEXA bone density, axial skeleton
+
+# ── Immunization (CVX) codes ───────────────────────────────────────────────────
+
+influenza_cvx:
+  system: http://hl7.org/fhir/sid/cvx
+  match: exact
+  codes:
+    - "88"                 # Influenza, unspecified formulation
+    - "141"                # Influenza, seasonal, injectable
+    - "150"                # Influenza, high-dose seasonal
+    - "158"                # Influenza, injectable, quadrivalent
+
+tdap_cvx:
+  system: http://hl7.org/fhir/sid/cvx
+  match: exact
+  codes:
+    - "115"                # Tdap
+    - "07"                 # Td (adult)
+
+pneumococcal_cvx:
+  system: http://hl7.org/fhir/sid/cvx
+  match: exact
+  codes:
+    - "33"                 # Pneumococcal polysaccharide PPSV23
+    - "133"                # Pneumococcal conjugate PCV13
+    - "215"                # Pneumococcal conjugate PCV20
+
+zoster_cvx:
+  system: http://hl7.org/fhir/sid/cvx
+  match: exact
+  codes:
+    - "187"                # Zoster recombinant (Shingrix)
+
 # ── Labels (display strings shown back to users when a code matches) ──────────
 # Optional — used by ListRecentObservations to label otherwise unlabeled codes.
 
@@ -93,6 +173,8 @@ labels:
     "2093-3": Total cholesterol
     "13457-7": LDL
     "2085-9": HDL
+    "57698-3": Lipid panel
+    "44249-1": PHQ-9 depression score
   cpt:
     "45378": Colonoscopy
     "45380": Colonoscopy with biopsy
@@ -102,3 +184,20 @@ labels:
     "77065": Mammography (diagnostic, unilateral)
     "77066": Mammography (diagnostic, bilateral)
     "77067": Mammography (screening, bilateral)
+    "88142": Pap smear (thin layer)
+    "88150": Pap smear (manual screening)
+    "88164": Pap smear (thin layer, manual screening)
+    "87624": HPV high-risk co-test
+    "71271": Low-dose CT lung cancer screening
+    "77080": DEXA bone density scan
+  cvx:
+    "88": Influenza vaccine
+    "141": Influenza vaccine (seasonal, injectable)
+    "150": Influenza vaccine (high-dose)
+    "158": Influenza vaccine (quadrivalent)
+    "115": Tdap vaccine
+    "07": Td vaccine
+    "33": Pneumococcal vaccine (PPSV23)
+    "133": Pneumococcal vaccine (PCV13)
+    "215": Pneumococcal vaccine (PCV20)
+    "187": Shingles vaccine (Shingrix)

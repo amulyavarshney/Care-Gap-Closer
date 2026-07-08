@@ -166,6 +166,21 @@ async def find_care_gaps(tool_context: ToolContext) -> dict:
     return await _call_mcp_tool("FindCareGaps", {}, headers)
 
 
+async def get_patient_risk_summary(tool_context: ToolContext) -> dict:
+    """Get a quick risk-stratified overview of the current patient's care gaps.
+
+    Returns gap_count, a severity breakdown (high/medium/low), an overall
+    risk_level, and the list of gap titles — no per-gap evidence or rationale.
+    Use this for a fast "how urgent is this patient" read; call
+    find_care_gaps afterward when the clinician wants full detail on a gap.
+    """
+    headers = _fhir_headers(tool_context)
+    if headers is None:
+        return _missing_context_error()
+    logger.info("agent_tool_get_patient_risk_summary")
+    return await _call_mcp_tool("GetPatientRiskSummary", {}, headers)
+
+
 async def draft_outreach_message(
     gap: dict,
     patient_name: str,

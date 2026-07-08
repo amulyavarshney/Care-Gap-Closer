@@ -14,6 +14,13 @@
 #   demographics    optional age range / gender filter
 #
 # Triggers reference coding sets defined in terminology.yaml by name.
+#
+# thresholds supports four shapes (see tools/care_gaps.py _build_evidence):
+#   observation:      single most-recent-observation staleness check
+#   procedure:        single most-recent-procedure staleness check
+#   procedure_any:    fires only if ALL listed procedure options are stale
+#   immunization:     single most-recent-immunization staleness check
+#                      (use max_months_since: 9999 for "any prior dose satisfies")
 
 version: "1.0"
 generated_by: "Care Gap Closer MCP — USPSTF + HEDIS-aligned"
@@ -89,3 +96,147 @@ rules:
       gender: female
       age_min: 40
       age_max: 74
+
+  - id: cervical-screening-overdue
+    title: Cervical cancer screening overdue
+    severity: high
+    uspstf_grade: A
+    rationale_template: >
+      USPSTF recommends cervical cytology every 3 years, or cytology plus HPV
+      co-testing every 5 years, for women 21–65.
+    triggers: {}
+    thresholds:
+      procedure_any:
+        - code_set: pap_smear_cpt
+          max_months_since: 36        # 3 years
+        - code_set: hpv_cotest_cpt
+          max_months_since: 60        # 5 years
+    demographics:
+      gender: female
+      age_min: 21
+      age_max: 65
+
+  - id: lipid-panel-overdue
+    title: Lipid panel overdue
+    severity: medium
+    uspstf_grade: A
+    rationale_template: >
+      USPSTF recommends periodic lipid screening for cardiovascular risk
+      assessment in adults 40 and older; a 60-month gap exceeds the typical
+      re-screening interval.
+    triggers: {}
+    thresholds:
+      observation:
+        code_set: lipid_panel_loinc
+        max_months_since: 60
+    demographics:
+      age_min: 40
+
+  - id: lung-cancer-screening-overdue
+    title: Lung cancer screening (LDCT) overdue
+    severity: high
+    uspstf_grade: B
+    rationale_template: >
+      USPSTF recommends annual low-dose CT lung cancer screening for adults
+      50–80 with a significant smoking history.
+    triggers:
+      condition_in:
+        - tobacco_use_snomed
+    thresholds:
+      procedure:
+        code_set: lung_ct_screening_cpt
+        max_months_since: 12
+    demographics:
+      age_min: 50
+      age_max: 80
+
+  - id: osteoporosis-screening-overdue
+    title: Osteoporosis screening (DEXA) overdue
+    severity: medium
+    uspstf_grade: B
+    rationale_template: >
+      USPSTF recommends bone density screening for women 65 and older;
+      repeat DEXA intervals commonly follow a 24-month cadence.
+    triggers: {}
+    thresholds:
+      procedure:
+        code_set: dexa_scan_cpt
+        max_months_since: 24
+    demographics:
+      gender: female
+      age_min: 65
+
+  - id: depression-screening-overdue
+    title: Depression screening overdue
+    severity: medium
+    uspstf_grade: B
+    rationale_template: >
+      USPSTF recommends depression screening for all adults, with rescreening
+      at least annually where risk factors or prior findings warrant it.
+    triggers: {}
+    thresholds:
+      observation:
+        code_set: phq9_loinc
+        max_months_since: 12
+    demographics:
+      age_min: 18
+
+  - id: influenza-vaccine-overdue
+    title: Influenza vaccine overdue
+    severity: low
+    uspstf_grade: B
+    rationale_template: >
+      Annual influenza vaccination is recommended for all adults ahead of
+      each respiratory viral season.
+    triggers: {}
+    thresholds:
+      immunization:
+        code_set: influenza_cvx
+        max_months_since: 12
+    demographics:
+      age_min: 18
+
+  - id: tdap-vaccine-overdue
+    title: Tdap/Td booster overdue
+    severity: low
+    uspstf_grade: A
+    rationale_template: >
+      ACIP recommends a Tdap or Td booster every 10 years for adults to
+      maintain protection against tetanus, diphtheria, and pertussis.
+    triggers: {}
+    thresholds:
+      immunization:
+        code_set: tdap_cvx
+        max_months_since: 120        # 10 years
+    demographics:
+      age_min: 18
+
+  - id: pneumococcal-vaccine-overdue
+    title: Pneumococcal vaccine overdue
+    severity: medium
+    uspstf_grade: B
+    rationale_template: >
+      ACIP recommends pneumococcal vaccination for adults 65 and older who
+      have not previously received one.
+    triggers: {}
+    thresholds:
+      immunization:
+        code_set: pneumococcal_cvx
+        max_months_since: 9999       # one-time; any prior dose satisfies it
+    demographics:
+      age_min: 65
+
+  - id: shingles-vaccine-overdue
+    title: Shingles vaccine overdue
+    severity: low
+    uspstf_grade: B
+    rationale_template: >
+      ACIP recommends the recombinant zoster vaccine (2-dose series) for
+      adults 50 and older to prevent herpes zoster and its complications.
+    triggers: {}
+    thresholds:
+      immunization:
+        code_set: zoster_cvx
+        max_months_since: 9999       # one-time series; any prior dose satisfies it
+    demographics:
+      age_min: 50

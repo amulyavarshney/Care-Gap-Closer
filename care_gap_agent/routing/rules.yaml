@@ -42,6 +42,19 @@ routes:
       - { tool: find_care_gaps,    external: true }
     presentation: bulleted list (title + rationale + key evidence value)
 
+  - intent: patient-risk-summary
+    examples:
+      - "How urgent is this patient?"
+      - "Give me a quick risk overview"
+      - "How many open gaps does she have, and how serious?"
+    tool_chain:
+      - { tool: get_patient_risk_summary, external: true }
+    presentation: one-line risk_level + severity counts, then gap_titles as a short list
+    notes: >
+      Faster than identify-care-gaps because it skips per-gap rationale
+      authoring. Offer to run identify-care-gaps next if the clinician wants
+      full detail on any listed gap.
+
   - intent: draft-outreach-for-gap
     examples:
       - "Draft an SMS about the A1c"

@@ -9,7 +9,7 @@ Opinion platform via SHARP-on-MCP and A2A v1 + FHIR context.
 
 ```
 Agent_Assemble/
-├── care_gap_mcp/      # MCP server — 5 tools, FastMCP + POFastMCP, SHARP headers
+├── care_gap_mcp/      # MCP server — 6 tools, FastMCP + POFastMCP, SHARP headers
 └── care_gap_agent/    # A2A agent — Google ADK + Gemini, calls its own MCP
 ```
 
@@ -25,7 +25,7 @@ Prompt Opinion portal (cloud)
 │  care_gap_agent  (Google ADK · Gemini · A2A v1)                 │
 │   • shared.middleware bridges metadata → params.metadata        │
 │   • shared.fhir_hook extracts FHIR context into session state   │
-│   • 5 ADK tools, each forwards FHIR context as SHARP headers    │
+│   • 6 ADK tools, each forwards FHIR context as SHARP headers    │
 └─────────────────────────┬───────────────────────────────────────┘
                           │  HTTP (SHARP-on-MCP)
                           │   X-FHIR-Server-URL
@@ -38,6 +38,7 @@ Prompt Opinion portal (cloud)
 │   • ListActiveConditions     │ deterministic FHIR queries       │
 │   • ListRecentObservations  ─┘                                  │
 │   • FindCareGaps             rule engine + Gemini rationale     │
+│   • GetPatientRiskSummary    severity rollup + risk level       │
 │   • DraftOutreachMessage     Gemini patient-language outreach   │
 └─────────────────────────┬───────────────────────────────────────┘
                           │
@@ -67,17 +68,31 @@ never invents a gap — it only authors *copy* off structured evidence.
 | `hypertension-bp-overdue` | active HTN (SNOMED 38341003 or ICD-10 I10–I15) + no LOINC 8480-6 in 12mo |
 | `colorectal-screening-overdue` | age 45–75 + no CPT 45378/45380/45385 in 10y / 82270 in 1y |
 | `mammography-overdue` | female, age 40–74 + no CPT 77065/77066/77067 in 24mo |
+| `cervical-screening-overdue` | female, age 21–65 + no CPT 88142/88150/88164 in 3y / 87624 in 5y |
+| `lipid-panel-overdue` | age 40+ + no LOINC 2093-3/13457-7/57698-3 in 5y |
+| `lung-cancer-screening-overdue` | tobacco use (SNOMED) + age 50–80 + no CPT 71271 in 1y |
+| `osteoporosis-screening-overdue` | female, age 65+ + no CPT 77080 in 24mo |
+| `depression-screening-overdue` | age 18+ + no LOINC 44249-1 (PHQ-9) in 12mo |
+| `influenza-vaccine-overdue` | age 18+ + no CVX 88/141/150/158 in 12mo |
+| `tdap-vaccine-overdue` | age 18+ + no CVX 115/07 in 10y |
+| `pneumococcal-vaccine-overdue` | age 65+ + no CVX 33/133/215 ever |
+| `shingles-vaccine-overdue` | age 50+ + no CVX 187 ever |
+
+New rules that fit the `observation`/`procedure`/`procedure_any`/`immunization`
+threshold shapes are pure YAML edits to `knowledge_base/care_gap_rules.yaml` +
+`terminology.yaml` — no code changes required.
 
 ## Standards used
 
-- **MCP** (Model Context Protocol) — FastMCP, exposes 5 tools
+- **MCP** (Model Context Protocol) — FastMCP, exposes 6 tools
 - **SHARP-on-MCP** — `ai.promptopinion/fhir-context` capability extension declares
   required SMART scopes; FHIR context arrives as `X-FHIR-Server-URL`,
   `X-FHIR-Access-Token`, `X-Patient-ID` headers
 - **A2A v1** — agent card with `supportedInterfaces`, nested `apiKeySecurityScheme`,
   FHIR extension via `params.scopes`
-- **FHIR R4** — Patient, Condition, Observation, Procedure resources via the
-  SMART Health IT public Synthea sandbox (`https://r4.smarthealthit.org`)
+- **FHIR R4** — Patient, Condition, Observation, Procedure, Immunization
+  resources via the SMART Health IT public Synthea sandbox
+  (`https://r4.smarthealthit.org`)
 - **Prompt Opinion FHIR context propagation** — both flavors (MCP headers + A2A
   metadata) wired end-to-end
 

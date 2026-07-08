@@ -38,11 +38,37 @@ async def find_care_gaps() -> dict:
     if context is None or not context.patient_id:
         return {"status": "error", "message": "FHIR context with patient_id is required."}
 
+    result = await compute_gaps(context)
+    if result is None:
+        return {"status": "error", "message": "Patient not found."}
+
+    age, gender, gaps = result
+    for gap in gaps:
+        gap["rationale"] = _author_rationale(gap, age, gender)
+
+    return {
+        "status": "success",
+        "patient_id": context.patient_id,
+        "age": age,
+        "gender": gender,
+        "gap_count": len(gaps),
+        "gaps": gaps,
+    }
+
+
+async def compute_gaps(context) -> tuple[int | None, str, list[dict[str, Any]]] | None:
+    """Fetch FHIR data and evaluate all rules. Shared by FindCareGaps and
+    GetPatientRiskSummary so both use one FHIR fetch + rule-eval path.
+
+    Returns (age, gender, gaps) with gaps missing their `rationale` field
+    (callers that need rationale must author it themselves), or None if the
+    patient can't be found.
+    """
     client = FhirClient(context)
 
     patient_resource = await client.read("Patient", context.patient_id)
     if patient_resource is None:
-        return {"status": "error", "message": "Patient not found."}
+        return None
     patient = Patient.model_validate(patient_resource)
     age = _age(patient.birthDate)
     gender = (patient.gender or "").lower()
@@ -62,25 +88,20 @@ async def find_care_gaps() -> dict:
         {"patient": context.patient_id, "_sort": "-date"},
         limit=100,
     )
+    immunizations = await client.search(
+        "Immunization",
+        {"patient": context.patient_id, "_sort": "-date"},
+        limit=100,
+    )
 
     rules = load_care_gap_rules().get("rules", [])
     gaps: list[dict[str, Any]] = []
     for rule in rules:
-        gap = _evaluate_rule(rule, age, gender, conditions, observations, procedures)
+        gap = _evaluate_rule(rule, age, gender, conditions, observations, procedures, immunizations)
         if gap is not None:
             gaps.append(gap)
 
-    for gap in gaps:
-        gap["rationale"] = _author_rationale(gap, age, gender)
-
-    return {
-        "status": "success",
-        "patient_id": context.patient_id,
-        "age": age,
-        "gender": gender,
-        "gap_count": len(gaps),
-        "gaps": gaps,
-    }
+    return age, gender, gaps
 
 
 # ── Rule evaluation ──────────────────────────────────────────────────────────
@@ -92,6 +113,7 @@ def _evaluate_rule(
     conditions: list,
     observations: list,
     procedures: list,
+    immunizations: list,
 ) -> dict | None:
     """Apply a single rule. Return a gap dict if triggered, else None."""
     if not _demographics_match(rule.get("demographics") or {}, age, gender):
@@ -102,7 +124,9 @@ def _evaluate_rule(
         return None
 
     thresh = rule.get("thresholds") or {}
-    evidence = _build_evidence(rule, age, gender, conditions, observations, procedures, thresh)
+    evidence = _build_evidence(
+        rule, age, gender, conditions, observations, procedures, immunizations, thresh
+    )
     if evidence is None:
         return None   # threshold not crossed; not a gap
 
@@ -154,6 +178,7 @@ def _build_evidence(
     conditions: list,
     observations: list,
     procedures: list,
+    immunizations: list,
     thresh: dict,
 ) -> dict | None:
     """Return evidence dict iff a threshold predicate is crossed."""
@@ -220,6 +245,23 @@ def _build_evidence(
         })
         return evidence
 
+    # Single-immunization threshold. max_months_since: 9999 models "one-time
+    # series" vaccines (e.g. shingles, pneumococcal) where any prior dose on
+    # record satisfies the gap indefinitely.
+    if "immunization" in thresh:
+        spec = thresh["immunization"]
+        recent = _most_recent_immunization(immunizations, spec["code_set"])
+        months = _months_since(recent)
+        if months <= spec["max_months_since"]:
+            return None
+        evidence.update({
+            "last_immunization_date": (recent or {}).get("date"),
+            "last_immunization_label": (recent or {}).get("label"),
+            "months_since_last": _round_months(months),
+            "max_allowed_months": spec["max_months_since"],
+        })
+        return evidence
+
     return None   # rule has no recognised threshold shape
 
 
@@ -246,6 +288,19 @@ def _most_recent_procedure(procedures: list, code_set_name: str) -> dict | None:
             if matches_code_set(c, code_set_name):
                 d = res.get("performedDateTime") or (res.get("performedPeriod") or {}).get("start")
                 matches.append({"date": d, "cpt": c.get("code"), "label": c.get("display")})
+                break
+    if not matches:
+        return None
+    return sorted(matches, key=lambda m: m["date"] or "", reverse=True)[0]
+
+
+def _most_recent_immunization(immunizations: list, code_set_name: str) -> dict | None:
+    matches = []
+    for res in immunizations:
+        for c in (res.get("vaccineCode", {}) or {}).get("coding", []) or []:
+            if matches_code_set(c, code_set_name):
+                d = res.get("occurrenceDateTime")
+                matches.append({"date": d, "cvx": c.get("code"), "label": c.get("display")})
                 break
     if not matches:
         return None
