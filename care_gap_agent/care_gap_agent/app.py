@@ -30,6 +30,7 @@ _FHIR_SCOPES = [
     {"name": "patient/Condition.rs", "required": True},
     {"name": "patient/Observation.rs", "required": True},
     {"name": "patient/Procedure.rs", "required": True},
+    {"name": "patient/Immunization.rs", "required": True},
     {"name": "patient/MedicationRequest.rs"},
 ]
 

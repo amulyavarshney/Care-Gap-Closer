@@ -269,9 +269,10 @@ If you build something on top of this, [open a PR](../../pulls) or [an issue](..
 Both services deploy independently via [`render.yaml`](render.yaml) as a [Render Blueprint](https://render.com/docs/blueprint-spec):
 
 1. Push this repo to GitHub and create a new Blueprint on Render pointing at it.
-2. Render provisions `care-gap-mcp` and `care-gap-agent` as separate web services.
+2. Render provisions `care-gap-mcp` and `care-gap-agent` as separate web services on the `starter` plan (no cold starts — important if you plan to register this on a marketplace where a stranger's first request needs to just work). Drop to `plan: free` in `render.yaml` if you're only running a personal/demo deployment and don't mind ~30s cold starts.
 3. Set `GOOGLE_API_KEY` (both services) and `API_KEY_PRIMARY` (agent only) in the Render dashboard — these are marked `sync: false` and won't be picked up from the repo.
 4. **Deploy the MCP service first.** Once it's live, copy its URL + `/mcp` into the agent's `MCP_SERVER_URL` environment variable and redeploy the agent.
+5. **Serving more than one integration/workspace?** Set `API_KEYS` (comma-separated) instead of relying only on `API_KEY_PRIMARY`, and issue each integration its own key — see `care_gap_agent/.env.example`.
 
 ---
 

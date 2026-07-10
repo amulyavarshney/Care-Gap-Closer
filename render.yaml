@@ -4,9 +4,11 @@
 #   1. care-gap-mcp     the SHARP-on-MCP server (FastMCP, Python 3.13)
 #   2. care-gap-agent   the A2A v1 agent (Google ADK, Python 3.11)
 #
-# Free tier: both services scale to zero after ~15 min idle. First request
-# after idle pays a one-time cold start (~30s). Acceptable for hackathon
-# judging; for production set plan: starter.
+# Both services run on the `starter` plan (no scale-to-zero, no cold start).
+# This matters once the agent is registered on a marketplace: a stranger's
+# first request must not eat a ~30s free-tier cold-start penalty. If you're
+# only running this for local/hackathon demo purposes, you can drop back to
+# `plan: free` below to avoid the cost.
 #
 # ── Secrets to set in the Render dashboard before first deploy ───────────
 #   On care-gap-mcp:
@@ -15,6 +17,10 @@
 #   On care-gap-agent:
 #     GOOGLE_API_KEY        Google AI Studio key (sync: false)
 #     API_KEY_PRIMARY       Bearer used by X-API-Key (sync: false)
+#     API_KEYS              Optional comma-separated list of additional keys
+#                           (sync: false) — issue one per PO workspace once
+#                           this agent is registered for more than one
+#                           integration, instead of sharing API_KEY_PRIMARY.
 #     MCP_SERVER_URL        Full https URL of care-gap-mcp + /mcp
 #                           e.g. https://care-gap-mcp-abcd.onrender.com/mcp
 #                           Set AFTER the MCP service deploys and you see its URL.
@@ -28,7 +34,7 @@ services:
   - type: web
     name: care-gap-mcp
     runtime: python
-    plan: free
+    plan: starter
     region: oregon
     rootDir: care_gap_mcp
     buildCommand: pip install --upgrade pip && pip install -r requirements.txt
@@ -51,7 +57,7 @@ services:
   - type: web
     name: care-gap-agent
     runtime: python
-    plan: free
+    plan: starter
     region: oregon
     rootDir: care_gap_agent
     buildCommand: pip install --upgrade pip && pip install -r requirements.txt
@@ -64,6 +70,8 @@ services:
         sync: false
       - key: API_KEY_PRIMARY
         sync: false
+      - key: API_KEYS
+        sync: false               # optional: comma-separated extra keys, one per workspace
       - key: MCP_SERVER_URL
         sync: false               # set to https://<mcp-host>.onrender.com/mcp after MCP deploys
       - key: CARE_GAP_AGENT_MODEL

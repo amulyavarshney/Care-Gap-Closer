@@ -31,6 +31,7 @@ def load_skills() -> list[AgentSkill]:
             name=s["name"],
             description=" ".join(s["description"].split()),  # collapse YAML folds
             tags=s.get("tags") or [],
+            examples=s.get("examples") or [],
         )
         for s in doc.get("skills", [])
     ]

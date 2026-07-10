@@ -2,28 +2,49 @@
 #
 # Each entry maps directly to an a2a.types.AgentSkill object. Editing this
 # file is the only way to change what the Prompt Opinion marketplace shows
-# about this agent's capabilities.
+# about this agent's capabilities. `examples` are shown verbatim on the
+# marketplace listing as sample prompts — this is the agent's main discovery
+# surface for someone who has never used it before, so keep them concrete.
 
 skills:
 
   - id: find-care-gaps
     name: find-care-gaps
     description: >
-      Identify open USPSTF preventive screening / monitoring gaps for the
-      patient in context, with structured evidence and rationale.
-    tags: [care-gaps, uspstf, fhir, prevention]
-
-  - id: draft-outreach
-    name: draft-outreach
-    description: >
-      Draft patient-facing SMS or portal outreach copy for a specific care
-      gap, written at a sixth-grade reading level.
-    tags: [outreach, communication, patient-engagement]
+      Identify open USPSTF/ACIP preventive screening, monitoring, and
+      vaccination gaps for the patient in context — 13 rules covering
+      diabetes, hypertension, cancer screenings, and routine immunizations.
+      Every gap is grounded in structured FHIR evidence (a diagnosis code, a
+      stale lab, a missing procedure or vaccine) plus a one-sentence
+      clinician-facing rationale. Requires a connected FHIR data source.
+    tags: [care-gaps, uspstf, fhir, prevention, screening]
+    examples:
+      - "What preventive care gaps does this patient have?"
+      - "Is she due for anything?"
+      - "What's overdue for this patient?"
 
   - id: patient-risk-summary
     name: patient-risk-summary
     description: >
-      Give a fast, risk-stratified overview of a patient's open USPSTF care
-      gaps — severity breakdown and overall risk level, without full evidence
-      or rationale detail.
+      Give a fast, risk-stratified overview of a patient's open care gaps —
+      severity breakdown (high/medium/low) and an overall risk level, without
+      the full per-gap evidence or rationale. Use this to triage a patient
+      list before drilling into find-care-gaps for detail.
     tags: [care-gaps, risk-stratification, triage]
+    examples:
+      - "How urgent is this patient?"
+      - "Give me a quick risk overview."
+      - "How many open gaps does she have, and how serious are they?"
+
+  - id: draft-outreach
+    name: draft-outreach
+    description: >
+      Draft patient-facing SMS or patient-portal outreach copy for a specific
+      care gap, written at a sixth-grade reading level so it's usable without
+      further editing. Always run find-care-gaps first — this skill drafts
+      outreach for a gap that's already been identified, it never invents one.
+    tags: [outreach, communication, patient-engagement]
+    examples:
+      - "Draft an SMS to her about the overdue A1c."
+      - "Write a portal message about the mammogram."
+      - "Draft outreach for the colorectal screening gap."
