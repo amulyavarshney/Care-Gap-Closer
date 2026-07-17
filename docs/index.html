@@ -157,155 +157,162 @@
     <section id="architecture" class="section architecture">
       <div class="section-head">
         <h2>Architecture</h2>
-        <p>Hover to see links. Click a box for details. Play sends a signal through one request.</p>
+        <p>Hover to preview links. Click a box for details. Play a scenario and watch the packet move.</p>
       </div>
 
-      <div class="arch-diagram" id="arch-diagram" data-scenario="gaps">
+      <div class="arch-diagram" id="arch-diagram">
         <div class="arch-toolbar">
-          <div class="arch-scenario-group" role="group" aria-label="Scenario">
-            <button type="button" class="arch-scenario is-active" data-scenario="gaps" aria-pressed="true">Find gaps</button>
-            <button type="button" class="arch-scenario" data-scenario="outreach" aria-pressed="false">Draft outreach</button>
+          <div class="arch-scenario" role="group" aria-label="Scenario">
+            <button type="button" class="arch-chip is-active" data-scenario="gaps">Find gaps</button>
+            <button type="button" class="arch-chip" data-scenario="outreach">Draft outreach</button>
           </div>
           <div class="arch-controls">
-            <button type="button" class="btn btn-small btn-primary" id="arch-play" aria-pressed="false">Play flow</button>
-            <button type="button" class="btn btn-small btn-ghost" id="arch-prev" disabled>Prev</button>
-            <button type="button" class="btn btn-small btn-ghost" id="arch-step">Next</button>
+            <button type="button" class="btn btn-small btn-ghost" id="arch-prev" aria-label="Previous step">‹</button>
+            <button type="button" class="btn btn-small btn-primary" id="arch-play">Play</button>
+            <button type="button" class="btn btn-small btn-ghost" id="arch-next" aria-label="Next step">›</button>
             <button type="button" class="btn btn-small btn-ghost" id="arch-reset">Reset</button>
           </div>
-          <div class="arch-speed-group" role="group" aria-label="Playback speed">
-            <button type="button" class="arch-speed" data-speed="slow" aria-pressed="false">Slow</button>
-            <button type="button" class="arch-speed is-active" data-speed="normal" aria-pressed="true">Normal</button>
-            <button type="button" class="arch-speed" data-speed="fast" aria-pressed="false">Fast</button>
-          </div>
-          <span class="arch-step-label" id="arch-step-label">Idle. Hover a node, click it, or press Play.</span>
+          <label class="arch-speed">
+            <span>Speed</span>
+            <input id="arch-speed" type="range" min="0.6" max="2" step="0.2" value="1" />
+          </label>
         </div>
 
-        <div class="arch-progress" id="arch-progress" role="list" aria-label="Flow steps"></div>
+        <ol class="arch-scrub" id="arch-scrub" aria-label="Flow steps"></ol>
+        <p class="arch-step-label" id="arch-step-label">Idle. Hover a box, or press Play.</p>
 
-        <div class="arch-stage" id="arch-stage" role="img" aria-label="Care Gap Closer request flow diagram">
-          <div class="arch-stage-glow" aria-hidden="true"></div>
-          <div class="arch-packet" id="arch-packet" aria-hidden="true"></div>
-
-          <svg class="arch-wires" viewBox="0 0 960 520" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+        <div class="arch-stage" id="arch-stage" tabindex="0" aria-label="Care Gap Closer request flow diagram. Space plays or pauses. Arrow keys step.">
+          <svg class="arch-wires" viewBox="0 0 960 540" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
             <defs>
-              <linearGradient id="wireGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stop-color="#78e0c8"/>
-                <stop offset="100%" stop-color="#f0b429"/>
+              <linearGradient id="zoneA" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="rgba(11,61,58,0.08)"/>
+                <stop offset="100%" stop-color="rgba(11,61,58,0.02)"/>
               </linearGradient>
-              <filter id="wireBloom" x="-40%" y="-40%" width="180%" height="180%">
-                <feGaussianBlur stdDeviation="3.5" result="blur"/>
+              <linearGradient id="zoneB" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="rgba(43,184,154,0.12)"/>
+                <stop offset="100%" stop-color="rgba(43,184,154,0.03)"/>
+              </linearGradient>
+              <linearGradient id="zoneC" x1="1" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="rgba(240,180,41,0.14)"/>
+                <stop offset="100%" stop-color="rgba(240,180,41,0.03)"/>
+              </linearGradient>
+              <filter id="softGlow" x="-40%" y="-40%" width="180%" height="180%">
+                <feGaussianBlur stdDeviation="3.5" result="b"/>
                 <feMerge>
-                  <feMergeNode in="blur"/>
+                  <feMergeNode in="b"/>
                   <feMergeNode in="SourceGraphic"/>
                 </feMerge>
               </filter>
               <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-                <path d="M 0 0 L 10 5 L 0 10 z" fill="#78e0c8" />
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#14524e" />
               </marker>
-              <marker id="arrowActive" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-                <path d="M 0 0 L 10 5 L 0 10 z" fill="#f0b429" />
+              <marker id="arrow-active" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#2bb89a" />
               </marker>
             </defs>
-            <g class="wire-glow-group" fill="none" stroke="url(#wireGrad)" stroke-width="6" filter="url(#wireBloom)" opacity="0">
-              <path class="wire-glow" data-edge="ask" d="M 248 78 H 278" />
-              <path class="wire-glow" data-edge="sharp" d="M 448 78 H 538" />
-              <path class="wire-glow" data-edge="fhir" d="M 624 128 V 198" />
-              <path class="wire-glow" data-edge="rules" d="M 560 138 C 560 220, 520 260, 444 298" />
-              <path class="wire-glow" data-edge="gemini" d="M 444 378 V 398" />
-              <path class="wire-glow" data-edge="back" d="M 588 438 C 720 438, 780 300, 708 198" />
-              <path class="wire-glow" data-edge="reply" d="M 280 128 V 210 H 164 V 118" />
+
+            <g class="arch-zones">
+              <rect x="24" y="24" width="220" height="160" rx="22" fill="url(#zoneA)"/>
+              <rect x="260" y="24" width="420" height="160" rx="22" fill="url(#zoneB)"/>
+              <rect x="320" y="220" width="600" height="292" rx="22" fill="url(#zoneC)"/>
+              <text x="44" y="52" class="zone-label">Caller</text>
+              <text x="280" y="52" class="zone-label">Agent + MCP</text>
+              <text x="340" y="248" class="zone-label">Data · rules · authorship</text>
             </g>
-            <g class="wire-group" fill="none" stroke="#4d7f78" stroke-width="2" marker-end="url(#arrow)">
-              <path class="wire" data-edge="ask" d="M 248 78 H 278" />
-              <path class="wire" data-edge="sharp" d="M 448 78 H 538" />
-              <path class="wire" data-edge="fhir" d="M 624 128 V 198" />
-              <path class="wire" data-edge="rules" d="M 560 138 C 560 220, 520 260, 444 298" />
-              <path class="wire" data-edge="gemini" d="M 444 378 V 398" />
-              <path class="wire" data-edge="back" d="M 588 438 C 720 438, 780 300, 708 198" />
-              <path class="wire" data-edge="reply" d="M 280 128 V 210 H 164 V 118" />
+
+            <g class="wire-group" fill="none" stroke-width="2.25" marker-end="url(#arrow)">
+              <path id="wire-ask" class="wire" data-edge="ask" d="M 248 92 H 278" />
+              <path id="wire-sharp" class="wire" data-edge="sharp" d="M 468 92 H 538" />
+              <path id="wire-fhir" class="wire" data-edge="fhir" d="M 670 148 V 230" />
+              <path id="wire-rules" class="wire" data-edge="rules" d="M 600 148 C 600 220, 540 270, 470 318" />
+              <path id="wire-gemini" class="wire" data-edge="gemini" d="M 470 398 V 430" />
+              <path id="wire-back" class="wire" data-edge="back" d="M 610 468 C 760 468, 820 300, 740 230" />
+              <path id="wire-reply" class="wire" data-edge="reply" d="M 300 148 V 210 H 170 V 132" />
+              <path id="wire-outreach" class="wire wire-alt" data-edge="outreach" d="M 300 148 C 300 280, 360 360, 450 430" />
             </g>
-            <g class="wire-labels" font-size="11" fill="#9bb8b3">
-              <text data-edge="ask" x="200" y="66">A2A message</text>
-              <text data-edge="sharp" x="455" y="66">SHARP headers</text>
-              <text data-edge="fhir" x="636" y="168">read / search</text>
-              <text data-edge="rules" x="470" y="230">evidence</text>
-              <text data-edge="gemini" x="452" y="392">gap found</text>
-              <text data-edge="back" x="700" y="340">rationale / SMS</text>
-              <text data-edge="reply" x="176" y="190">summary</text>
+
+            <g class="wire-hitboxes" fill="transparent" stroke="transparent" stroke-width="18">
+              <path data-edge="ask" d="M 248 92 H 278" />
+              <path data-edge="sharp" d="M 468 92 H 538" />
+              <path data-edge="fhir" d="M 670 148 V 230" />
+              <path data-edge="rules" d="M 600 148 C 600 220, 540 270, 470 318" />
+              <path data-edge="gemini" d="M 470 398 V 430" />
+              <path data-edge="back" d="M 610 468 C 760 468, 820 300, 740 230" />
+              <path data-edge="reply" d="M 300 148 V 210 H 170 V 132" />
+              <path data-edge="outreach" d="M 300 148 C 300 280, 360 360, 450 430" />
             </g>
+
+            <g class="wire-labels">
+              <text data-edge="ask" x="198" y="78">A2A message</text>
+              <text data-edge="sharp" x="470" y="78">SHARP headers</text>
+              <text data-edge="fhir" x="682" y="195">read / search</text>
+              <text data-edge="rules" x="500" y="250">evidence</text>
+              <text data-edge="gemini" x="482" y="420">gap found</text>
+              <text data-edge="back" x="730" y="350">rationale / copy</text>
+              <text data-edge="reply" x="180" y="190">summary</text>
+              <text data-edge="outreach" x="320" y="320">draft request</text>
+            </g>
+
+            <circle id="arch-packet" class="arch-packet" r="7" cx="-20" cy="-20" />
           </svg>
 
-          <button type="button" class="arch-node tone-caller" data-node="clinician" style="--x:8.3%; --y:7.7%;">
-            <span class="arch-node-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.5" stroke="currentColor" stroke-width="1.8"/><path d="M5 19c1.5-3.5 4-5 7-5s5.5 1.5 7 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-            </span>
+          <button type="button" class="arch-node" data-node="clinician" style="--x:5.5%; --y:10%;" data-tone="ink">
+            <span class="arch-node-icon" aria-hidden="true"><span class="ico ico-user"></span></span>
             <span class="arch-node-copy">
               <span class="arch-node-kicker">Caller</span>
               <span class="arch-node-title">Clinician</span>
               <span class="arch-node-meta">A2A client</span>
             </span>
           </button>
-          <button type="button" class="arch-node tone-agent" data-node="agent" style="--x:29.2%; --y:7.7%;">
-            <span class="arch-node-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none"><rect x="4" y="5" width="16" height="12" rx="2.5" stroke="currentColor" stroke-width="1.8"/><path d="M9 19h6M12 17v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="9" cy="11" r="1.2" fill="currentColor"/><circle cx="15" cy="11" r="1.2" fill="currentColor"/></svg>
-            </span>
+          <button type="button" class="arch-node" data-node="agent" style="--x:29%; --y:10%;" data-tone="mint">
+            <span class="arch-node-icon" aria-hidden="true"><span class="ico ico-agent"></span></span>
             <span class="arch-node-copy">
               <span class="arch-node-kicker">:8001</span>
               <span class="arch-node-title">care_gap_agent</span>
               <span class="arch-node-meta">ADK · Gemini · A2A</span>
             </span>
           </button>
-          <button type="button" class="arch-node tone-mcp" data-node="mcp" style="--x:56.3%; --y:7.7%;">
-            <span class="arch-node-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none"><path d="M7 7h10v10H7z" stroke="currentColor" stroke-width="1.8"/><path d="M4 10v4M20 10v4M10 4h4M10 20h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-            </span>
+          <button type="button" class="arch-node" data-node="mcp" style="--x:56%; --y:10%;" data-tone="mint">
+            <span class="arch-node-icon" aria-hidden="true"><span class="ico ico-tools"></span></span>
             <span class="arch-node-copy">
               <span class="arch-node-kicker">:9000/mcp</span>
               <span class="arch-node-title">care_gap_mcp</span>
               <span class="arch-node-meta">FastMCP · 6 tools</span>
             </span>
           </button>
-          <button type="button" class="arch-node tone-fhir" data-node="fhir" style="--x:66.7%; --y:38.5%;">
-            <span class="arch-node-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="6.5" rx="6" ry="2.5" stroke="currentColor" stroke-width="1.8"/><path d="M6 6.5v11c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5v-11" stroke="currentColor" stroke-width="1.8"/><path d="M6 12c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5" stroke="currentColor" stroke-width="1.8"/></svg>
-            </span>
+          <button type="button" class="arch-node" data-node="fhir" style="--x:68%; --y:42%;" data-tone="amber">
+            <span class="arch-node-icon" aria-hidden="true"><span class="ico ico-db"></span></span>
             <span class="arch-node-copy">
               <span class="arch-node-kicker">Data</span>
               <span class="arch-node-title">FHIR R4</span>
               <span class="arch-node-meta">Sandbox / EHR</span>
             </span>
           </button>
-          <button type="button" class="arch-node tone-rules" data-node="rules" style="--x:37.5%; --y:57.7%;">
-            <span class="arch-node-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none"><path d="M5 6h14M5 12h14M5 18h9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="18" cy="18" r="2.5" stroke="currentColor" stroke-width="1.8"/></svg>
-            </span>
+          <button type="button" class="arch-node" data-node="rules" style="--x:36%; --y:58%;" data-tone="amber">
+            <span class="arch-node-icon" aria-hidden="true"><span class="ico ico-rules"></span></span>
             <span class="arch-node-copy">
               <span class="arch-node-kicker">Deterministic</span>
               <span class="arch-node-title">YAML rules</span>
-              <span class="arch-node-meta">13 USPSTF / ACIP</span>
+              <span class="arch-node-meta">13 care-gap rules</span>
             </span>
           </button>
-          <button type="button" class="arch-node tone-gemini" data-node="gemini" style="--x:43.8%; --y:76.9%;">
-            <span class="arch-node-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M18.5 15.5l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7.7-2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
-            </span>
+          <button type="button" class="arch-node" data-node="gemini" style="--x:42%; --y:78%;" data-tone="amber">
+            <span class="arch-node-icon" aria-hidden="true"><span class="ico ico-spark"></span></span>
             <span class="arch-node-copy">
               <span class="arch-node-kicker">Authorship</span>
               <span class="arch-node-title">Gemini</span>
-              <span class="arch-node-meta">Rationale + SMS</span>
+              <span class="arch-node-meta">Rationale + outreach</span>
             </span>
           </button>
+
+          <div class="arch-legend" aria-hidden="true">
+            <span><i class="lg lg-mint"></i> Runtime</span>
+            <span><i class="lg lg-amber"></i> Data / authorship</span>
+            <span><i class="lg lg-ink"></i> Caller</span>
+          </div>
         </div>
 
-        <aside class="arch-detail" id="arch-detail" aria-live="polite">
-          <p class="arch-detail-kicker">Request path</p>
-          <h3>How a question moves</h3>
-          <p>A clinician asks over A2A. The agent calls MCP with FHIR context in headers. MCP reads the chart, runs YAML rules, asks Gemini to write copy, then returns a summary. Tokens never enter a prompt.</p>
-          <ul>
-            <li>Hover a box to see its links. Click for details.</li>
-            <li>Play walks one scenario. Switch Find gaps / Draft outreach to change the path.</li>
-          </ul>
-        </aside>
+        <aside class="arch-detail" id="arch-detail" aria-live="polite"></aside>
       </div>
     </section>
   </main>
