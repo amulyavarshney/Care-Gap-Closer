@@ -157,7 +157,7 @@
     <section id="architecture" class="section architecture">
       <div class="section-head">
         <h2>Architecture</h2>
-        <p>Hover to preview links. Click a box for details. Play a scenario and watch the packet move.</p>
+        <p>Hover to preview links. Click a box or wire chip for details. Play a scenario and watch the packet move.</p>
       </div>
 
       <div class="arch-diagram" id="arch-diagram">
@@ -180,9 +180,10 @@
 
         <ol class="arch-scrub" id="arch-scrub" aria-label="Flow steps"></ol>
         <p class="arch-step-label" id="arch-step-label">Idle. Hover a box, or press Play.</p>
+        <div class="arch-edges" id="arch-edges" role="group" aria-label="Wires"></div>
 
         <div class="arch-stage" id="arch-stage" tabindex="0" aria-label="Care Gap Closer request flow diagram. Space plays or pauses. Arrow keys step.">
-          <svg class="arch-wires" viewBox="0 0 960 540" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+          <svg class="arch-wires" viewBox="0 0 960 560" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
             <defs>
               <linearGradient id="zoneA" x1="0" y1="0" x2="1" y2="1">
                 <stop offset="0%" stop-color="rgba(11,61,58,0.08)"/>
@@ -214,7 +215,7 @@
             <g class="arch-zones">
               <rect x="24" y="24" width="220" height="160" rx="22" fill="url(#zoneA)"/>
               <rect x="260" y="24" width="420" height="160" rx="22" fill="url(#zoneB)"/>
-              <rect x="320" y="220" width="600" height="292" rx="22" fill="url(#zoneC)"/>
+              <rect x="320" y="220" width="600" height="312" rx="22" fill="url(#zoneC)"/>
               <text x="44" y="52" class="zone-label">Caller</text>
               <text x="280" y="52" class="zone-label">Agent + MCP</text>
               <text x="340" y="248" class="zone-label">Data · rules · authorship</text>
@@ -280,7 +281,7 @@
               <span class="arch-node-meta">FastMCP · 6 tools</span>
             </span>
           </button>
-          <button type="button" class="arch-node" data-node="fhir" style="--x:68%; --y:42%;" data-tone="amber">
+          <button type="button" class="arch-node" data-node="fhir" style="--x:68%; --y:40%;" data-tone="amber">
             <span class="arch-node-icon" aria-hidden="true"><span class="ico ico-db"></span></span>
             <span class="arch-node-copy">
               <span class="arch-node-kicker">Data</span>
@@ -288,7 +289,7 @@
               <span class="arch-node-meta">Sandbox / EHR</span>
             </span>
           </button>
-          <button type="button" class="arch-node" data-node="rules" style="--x:36%; --y:58%;" data-tone="amber">
+          <button type="button" class="arch-node" data-node="rules" style="--x:36%; --y:54%;" data-tone="amber">
             <span class="arch-node-icon" aria-hidden="true"><span class="ico ico-rules"></span></span>
             <span class="arch-node-copy">
               <span class="arch-node-kicker">Deterministic</span>
@@ -296,7 +297,7 @@
               <span class="arch-node-meta">13 care-gap rules</span>
             </span>
           </button>
-          <button type="button" class="arch-node" data-node="gemini" style="--x:42%; --y:78%;" data-tone="amber">
+          <button type="button" class="arch-node" data-node="gemini" style="--x:42%; --y:72%;" data-tone="amber">
             <span class="arch-node-icon" aria-hidden="true"><span class="ico ico-spark"></span></span>
             <span class="arch-node-copy">
               <span class="arch-node-kicker">Authorship</span>

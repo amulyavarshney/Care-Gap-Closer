@@ -87,11 +87,11 @@ const EDGES = {
     body: "MCP queries the chart. No LLM on this hop.",
   },
   rules: {
-    title: "Evidence → rules",
+    title: "Evidence to rules",
     body: "Structured facts enter the YAML engine. Gaps are decided here.",
   },
   gemini: {
-    title: "Gap → authorship",
+    title: "Gap to authorship",
     body: "An existing gap is handed to Gemini for a clinician rationale.",
   },
   back: {
@@ -273,7 +273,7 @@ const DEFAULT_DETAIL = {
   body: "A clinician asks over A2A. The agent calls MCP with FHIR context in headers. MCP reads the chart, runs YAML rules, asks Gemini to write copy, then returns a summary.",
   bullets: [
     "Hover a box to light its links.",
-    "Click a wire label or wire for that hop.",
+    "Click a wire chip for that hop.",
     "Play walks a full scenario with a moving packet.",
   ],
   tags: ["interactive"],
@@ -425,6 +425,7 @@ function pinNode(nodeId) {
   });
   $("arch-step-label").textContent = `Selected: ${detail.title}`;
   updateScrub();
+  updateEdgeChips();
   updateButtons();
 }
 
@@ -452,6 +453,7 @@ function pinEdge(edgeId) {
   });
   $("arch-step-label").textContent = `Wire: ${edge.title}`;
   updateScrub();
+  updateEdgeChips();
   updateButtons();
 }
 
@@ -500,6 +502,46 @@ function buildScrub() {
   });
 }
 
+function visibleEdgeIds() {
+  const ids = new Set();
+  currentSteps().forEach((step) => step.edges.forEach((e) => ids.add(e)));
+  // Always expose core path wires for the gaps scenario; outreach adds its own.
+  ["ask", "sharp", "fhir", "rules", "gemini", "back", "reply"].forEach((e) => ids.add(e));
+  if (scenario === "outreach") ids.add("outreach");
+  return [...ids];
+}
+
+function buildEdges() {
+  const root = $("arch-edges");
+  if (!root) return;
+  const order = ["ask", "sharp", "fhir", "rules", "gemini", "back", "reply", "outreach"];
+  const ids = visibleEdgeIds();
+  root.innerHTML = order
+    .filter((id) => ids.includes(id) && EDGES[id])
+    .filter((id) => (scenario === "outreach" ? true : id !== "outreach"))
+    .map(
+      (id) =>
+        `<button type="button" class="arch-edge-chip" data-edge="${id}">${EDGES[id].title}</button>`
+    )
+    .join("");
+  root.querySelectorAll("button").forEach((btn) => {
+    btn.addEventListener("click", () => pinEdge(btn.dataset.edge));
+  });
+  updateEdgeChips();
+}
+
+function updateEdgeChips() {
+  const active = new Set();
+  if (pinned?.type === "edge") active.add(pinned.id);
+  if (stepIndex >= 0) {
+    currentSteps()[stepIndex]?.edges.forEach((e) => active.add(e));
+  }
+  document.querySelectorAll(".arch-edge-chip").forEach((btn) => {
+    btn.classList.toggle("is-active", active.has(btn.dataset.edge));
+    btn.hidden = scenario !== "outreach" && btn.dataset.edge === "outreach";
+  });
+}
+
 function stopPlayback() {
   playing = false;
   if (playTimer) {
@@ -530,6 +572,7 @@ async function goToStep(index, { animate = true } = {}) {
   markVisitedUpTo(index);
   const step = steps[index];
   highlightStep(step);
+  updateEdgeChips();
   updateButtons();
   if (animate && step.packet) {
     await animatePacket(step.packet);
@@ -568,8 +611,9 @@ function resetFlow() {
   pinned = null;
   clearHighlights();
   renderDetail(DEFAULT_DETAIL);
-  $("arch-step-label").textContent = "Idle. Hover a box, or press Play.";
+  $("arch-step-label").textContent = "Idle. Hover a box, click a wire chip, or press Play.";
   updateScrub();
+  updateEdgeChips();
   updateButtons();
 }
 
@@ -584,6 +628,7 @@ function setScenario(name) {
     el.classList.toggle("is-scenario", name === "outreach");
   });
   buildScrub();
+  buildEdges();
   resetFlow();
   $("arch-step-label").textContent = `Scenario: ${SCENARIOS[name].label}. Press Play.`;
 }
@@ -609,7 +654,10 @@ export function initArchitecture() {
 
   document.querySelectorAll(".wire-hitboxes path").forEach((path) => {
     path.style.cursor = "pointer";
-    path.addEventListener("click", () => pinEdge(path.dataset.edge));
+    path.addEventListener("click", (event) => {
+      event.stopPropagation();
+      pinEdge(path.dataset.edge);
+    });
     path.addEventListener("mouseenter", () => {
       if (playing || stepIndex >= 0 || pinned) return;
       clearHighlights();
@@ -620,6 +668,9 @@ export function initArchitecture() {
       clearHighlights();
     });
   });
+
+  // SVG labels sit under nodes; keep them as hover hints only.
+  // Reliable wire selection is via .arch-edge-chip buttons.
 
   document.querySelectorAll(".arch-chip").forEach((chip) => {
     chip.addEventListener("click", () => setScenario(chip.dataset.scenario));

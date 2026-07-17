@@ -713,7 +713,8 @@ code {
 
 .arch-toolbar,
 .arch-scrub,
-.arch-step-label {
+.arch-step-label,
+.arch-edges {
   grid-column: 1 / -1;
 }
 
@@ -840,10 +841,39 @@ code {
   color: var(--muted);
 }
 
+.arch-edges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.arch-edge-chip {
+  border: 1px solid var(--line-strong);
+  background: #fff;
+  color: var(--ink-2);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.arch-edge-chip:hover {
+  border-color: var(--mint-deep);
+}
+
+.arch-edge-chip.is-active {
+  background: rgba(43, 184, 154, 0.16);
+  border-color: var(--mint-deep);
+  color: var(--ink-2);
+}
+
 .arch-stage {
   position: relative;
   width: 100%;
-  aspect-ratio: 960 / 540;
+  aspect-ratio: 960 / 560;
   min-height: 0;
   border-radius: 16px;
   border: 1px solid var(--line);
@@ -958,9 +988,9 @@ code {
   position: absolute;
   left: var(--x);
   top: var(--y);
-  width: 18.5%;
+  width: 17.5%;
   margin: 0;
-  padding: 0.65rem 0.7rem;
+  padding: 0.55rem 0.65rem;
   display: flex;
   align-items: flex-start;
   gap: 0.55rem;
@@ -1111,7 +1141,7 @@ code {
 .arch-legend {
   position: absolute;
   left: 0.75rem;
-  bottom: 0.7rem;
+  bottom: 0.45rem;
   display: flex;
   flex-wrap: wrap;
   gap: 0.55rem 0.85rem;
