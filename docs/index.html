@@ -156,30 +156,86 @@
 
     <section id="architecture" class="section architecture">
       <div class="section-head">
-        <h2>Who does what</h2>
-        <p>A YAML rule engine marks overdue care. Gemini writes the clinician rationale and the patient copy for those gaps.</p>
+        <h2>Architecture</h2>
+        <p>Click a box for details. Hit Play to watch one request move through the stack.</p>
       </div>
-      <div class="arch-flow" aria-hidden="false">
-        <div class="arch-step">
-          <span class="step-num">01</span>
-          <h3>A2A agent</h3>
-          <p>Google ADK and Gemini choose tools and carry evidence from one turn to the next.</p>
+
+      <div class="arch-diagram" id="arch-diagram">
+        <div class="arch-toolbar">
+          <button type="button" class="btn btn-small btn-primary" id="arch-play">Play flow</button>
+          <button type="button" class="btn btn-small btn-ghost" id="arch-step">Next step</button>
+          <button type="button" class="btn btn-small btn-ghost" id="arch-reset">Reset</button>
+          <span class="arch-step-label" id="arch-step-label">Idle. Pick a node or press Play.</span>
         </div>
-        <div class="arch-step">
-          <span class="step-num">02</span>
-          <h3>MCP tools</h3>
-          <p>FastMCP reads FHIR R4 through SHARP headers. FHIR tokens stay out of prompts.</p>
+
+        <div class="arch-stage" role="img" aria-label="Care Gap Closer request flow diagram">
+          <svg class="arch-wires" viewBox="0 0 960 520" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+            <defs>
+              <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" />
+              </marker>
+            </defs>
+            <g class="wire-group" fill="none" stroke="currentColor" stroke-width="2" marker-end="url(#arrow)">
+              <path id="wire-ask" class="wire" data-edge="ask" d="M 248 78 H 278" />
+              <path id="wire-sharp" class="wire" data-edge="sharp" d="M 448 78 H 538" />
+              <path id="wire-fhir" class="wire" data-edge="fhir" d="M 624 128 V 198" />
+              <path id="wire-rules" class="wire" data-edge="rules" d="M 560 138 C 560 220, 520 260, 444 298" />
+              <path id="wire-gemini" class="wire" data-edge="gemini" d="M 444 378 V 398" />
+              <path id="wire-back" class="wire" data-edge="back" d="M 588 438 C 720 438, 780 300, 708 198" />
+              <path id="wire-reply" class="wire" data-edge="reply" d="M 280 128 V 210 H 164 V 118" />
+            </g>
+            <g class="wire-labels" font-size="11" fill="currentColor">
+              <text data-edge="ask" x="200" y="66">A2A message</text>
+              <text data-edge="sharp" x="455" y="66">SHARP headers</text>
+              <text data-edge="fhir" x="636" y="168">read / search</text>
+              <text data-edge="rules" x="470" y="230">evidence</text>
+              <text data-edge="gemini" x="452" y="392">gap found</text>
+              <text data-edge="back" x="700" y="340">rationale / SMS</text>
+              <text data-edge="reply" x="176" y="190">summary</text>
+            </g>
+          </svg>
+
+          <button type="button" class="arch-node" data-node="clinician" style="--x:8.3%; --y:7.7%;">
+            <span class="arch-node-kicker">Caller</span>
+            <span class="arch-node-title">Clinician</span>
+            <span class="arch-node-meta">A2A client</span>
+          </button>
+          <button type="button" class="arch-node" data-node="agent" style="--x:29.2%; --y:7.7%;">
+            <span class="arch-node-kicker">:8001</span>
+            <span class="arch-node-title">care_gap_agent</span>
+            <span class="arch-node-meta">Google ADK · Gemini · A2A v1</span>
+          </button>
+          <button type="button" class="arch-node" data-node="mcp" style="--x:56.3%; --y:7.7%;">
+            <span class="arch-node-kicker">:9000/mcp</span>
+            <span class="arch-node-title">care_gap_mcp</span>
+            <span class="arch-node-meta">FastMCP · 6 tools</span>
+          </button>
+          <button type="button" class="arch-node" data-node="fhir" style="--x:66.7%; --y:38.5%;">
+            <span class="arch-node-kicker">Data</span>
+            <span class="arch-node-title">FHIR R4 server</span>
+            <span class="arch-node-meta">SMART sandbox / EHR</span>
+          </button>
+          <button type="button" class="arch-node" data-node="rules" style="--x:37.5%; --y:57.7%;">
+            <span class="arch-node-kicker">Deterministic</span>
+            <span class="arch-node-title">YAML rule engine</span>
+            <span class="arch-node-meta">13 USPSTF / ACIP rules</span>
+          </button>
+          <button type="button" class="arch-node" data-node="gemini" style="--x:43.8%; --y:76.9%;">
+            <span class="arch-node-kicker">Authorship</span>
+            <span class="arch-node-title">Gemini</span>
+            <span class="arch-node-meta">Rationale + outreach</span>
+          </button>
         </div>
-        <div class="arch-step">
-          <span class="step-num">03</span>
-          <h3>YAML rules</h3>
-          <p>13 USPSTF and ACIP rules keyed to SNOMED, LOINC, CPT, and CVX codes.</p>
-        </div>
-        <div class="arch-step">
-          <span class="step-num">04</span>
-          <h3>Gemini authorship</h3>
-          <p>One-sentence clinical rationale, plus SMS or portal copy at about a sixth-grade reading level. Each rule has a template if Gemini is down.</p>
-        </div>
+
+        <aside class="arch-detail" id="arch-detail" aria-live="polite">
+          <p class="arch-detail-kicker">Request path</p>
+          <h3>How a question moves</h3>
+          <p>A clinician asks over A2A. The agent calls MCP with FHIR context in headers. MCP reads the chart, runs YAML rules, asks Gemini to write copy, then returns a summary. Tokens never enter a prompt.</p>
+          <ul id="arch-detail-list">
+            <li>Click any box for that component.</li>
+            <li>Play flow walks one "find gaps" request step by step.</li>
+          </ul>
+        </aside>
       </div>
     </section>
   </main>

@@ -4,6 +4,7 @@ import {
   PATIENT,
   demoAgentReply,
 } from "./demo-data.js";
+import { initArchitecture } from "./architecture.js";
 
 const PO_BASE = "https://app.promptopinion.ai";
 const FHIR_CONTEXT_URI = `${PO_BASE}/schemas/a2a/v1/fhir-context`;
@@ -331,3 +332,4 @@ function extractA2aText(payload) {
 initTabs();
 initMcpInspector();
 initChat();
+initArchitecture();
