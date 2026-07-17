@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Care Gap Closer — Playground</title>
+  <meta name="description" content="Interactive playground for the Care Gap Closer MCP server and A2A agent — find preventive care gaps in FHIR, draft outreach with Gemini." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/styles.css" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230B3D3A'/%3E%3Cpath d='M8 18c4-8 12-8 16 0' stroke='%2378E0C8' stroke-width='2.5' fill='none'/%3E%3Ccircle cx='16' cy='12' r='3' fill='%23F0B429'/%3E%3C/svg%3E" />
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <a class="brand" href="#top">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span class="brand-name">Care Gap Closer</span>
+    </a>
+    <nav class="topnav">
+      <a href="#playground">Playground</a>
+      <a href="#architecture">Architecture</a>
+      <a href="https://github.com/amulyavarshney/Care-Gap-Closer" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="hero-bg" aria-hidden="true">
+        <div class="hero-orb hero-orb-a"></div>
+        <div class="hero-orb hero-orb-b"></div>
+        <svg class="hero-grid" viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid slice">
+          <defs>
+            <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
+              <path d="M48 0H0V48" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+            </pattern>
+          </defs>
+          <rect width="1200" height="700" fill="url(#grid)"/>
+          <path class="pulse-path" d="M80 420 C 220 220, 340 520, 500 340 S 780 180, 1120 300" fill="none" stroke="rgba(120,224,200,0.45)" stroke-width="2"/>
+        </svg>
+      </div>
+
+      <div class="hero-copy">
+        <p class="eyebrow">MCP · A2A · FHIR R4 · Gemini</p>
+        <h1 class="brand-hero">Care Gap Closer</h1>
+        <p class="lede">
+          Find overdue preventive care in a patient's FHIR record — then write the outreach that closes it.
+        </p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="#playground">Open playground</a>
+          <a class="btn btn-ghost" href="https://github.com/amulyavarshney/Care-Gap-Closer" target="_blank" rel="noopener">View source</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="playground" class="section playground">
+      <div class="section-head">
+        <h2>Playground</h2>
+        <p>Inspect MCP tools or chat with the A2A agent. Demo mode runs entirely in the browser; live mode talks to your deployed backends.</p>
+      </div>
+
+      <div class="mode-bar" role="tablist" aria-label="Playground mode">
+        <button class="mode-tab is-active" role="tab" aria-selected="true" data-panel="mcp">MCP Inspector</button>
+        <button class="mode-tab" role="tab" aria-selected="false" data-panel="a2a">A2A Agent Demo</button>
+      </div>
+
+      <!-- MCP Inspector -->
+      <div id="panel-mcp" class="panel is-active" role="tabpanel">
+        <aside class="tool-rail">
+          <div class="rail-head">
+            <h3>Tools</h3>
+            <span class="pill">6 registered</span>
+          </div>
+          <ul id="tool-list" class="tool-list"></ul>
+          <div class="rail-foot">
+            <label class="switch">
+              <input type="checkbox" id="mcp-live-toggle" />
+              <span>Live MCP endpoint</span>
+            </label>
+            <input id="mcp-url" class="field" type="url" placeholder="http://127.0.0.1:9000/mcp" disabled />
+            <p class="hint">Live MCP Streamable HTTP needs a CORS-enabled server. Demo responses match the Synthea patient below.</p>
+          </div>
+        </aside>
+
+        <div class="inspector-main">
+          <div class="fhir-strip">
+            <div>
+              <span class="label">Patient</span>
+              <strong>Danae Kshlerin · 61F</strong>
+            </div>
+            <div>
+              <span class="label">FHIR</span>
+              <code>r4.smarthealthit.org</code>
+            </div>
+            <div>
+              <span class="label">Mode</span>
+              <strong id="mcp-mode-label">Demo</strong>
+            </div>
+          </div>
+
+          <div id="tool-detail" class="tool-detail">
+            <p class="empty">Select a tool to inspect its schema and run it.</p>
+          </div>
+
+          <div class="io-grid">
+            <div class="io-block">
+              <div class="io-head">
+                <h4>Arguments</h4>
+                <button id="run-tool" class="btn btn-small btn-primary" disabled>Run tool</button>
+              </div>
+              <textarea id="tool-args" class="code-area" spellcheck="false" disabled>{}</textarea>
+            </div>
+            <div class="io-block">
+              <div class="io-head">
+                <h4>Response</h4>
+                <button id="copy-response" class="btn btn-small btn-ghost" type="button">Copy</button>
+              </div>
+              <pre id="tool-response" class="code-area response">Select a tool and press Run.</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- A2A Agent -->
+      <div id="panel-a2a" class="panel" role="tabpanel" hidden>
+        <div class="chat-shell">
+          <div class="chat-side">
+            <h3>care_gap_agent</h3>
+            <p class="side-copy">Google ADK + Gemini orchestrates MCP tools over A2A v1. Gaps are decided by rules; the model only authors rationale and outreach.</p>
+            <div class="chip-row" id="prompt-chips"></div>
+            <form class="live-config" autocomplete="off" onsubmit="return false;">
+              <label class="switch">
+                <input type="checkbox" id="a2a-live-toggle" />
+                <span>Live A2A endpoint</span>
+              </label>
+              <label class="field-label" for="a2a-url">Agent URL</label>
+              <input id="a2a-url" class="field" type="url" placeholder="http://127.0.0.1:8001" disabled />
+              <label class="field-label" for="a2a-key">X-API-Key</label>
+              <input id="a2a-key" class="field" type="password" placeholder="API_KEY_PRIMARY" disabled autocomplete="off" />
+            </form>
+            <p class="hint">Demo mode streams the canned conversation from the project demo script. Live mode POSTs <code>message/send</code> with FHIR context metadata.</p>
+          </div>
+
+          <div class="chat-main">
+            <div id="chat-log" class="chat-log" aria-live="polite"></div>
+            <form id="chat-form" class="chat-form">
+              <input id="chat-input" type="text" placeholder="Ask about care gaps or draft outreach…" autocomplete="off" />
+              <button class="btn btn-primary" type="submit">Send</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="architecture" class="section architecture">
+      <div class="section-head">
+        <h2>How it splits the work</h2>
+        <p>Rule engines decide what is overdue. The LLM only writes about gaps that already exist.</p>
+      </div>
+      <div class="arch-flow" aria-hidden="false">
+        <div class="arch-step">
+          <span class="step-num">01</span>
+          <h3>A2A agent</h3>
+          <p>Google ADK + Gemini picks tools and threads evidence across turns.</p>
+        </div>
+        <div class="arch-step">
+          <span class="step-num">02</span>
+          <h3>MCP tools</h3>
+          <p>FastMCP reads FHIR R4 via SHARP headers — tokens never enter prompts.</p>
+        </div>
+        <div class="arch-step">
+          <span class="step-num">03</span>
+          <h3>YAML rules</h3>
+          <p>13 USPSTF/ACIP rules over SNOMED, LOINC, CPT, and CVX codes.</p>
+        </div>
+        <div class="arch-step">
+          <span class="step-num">04</span>
+          <h3>Gemini authorship</h3>
+          <p>Clinical rationale + sixth-grade SMS/portal copy, with template fallbacks.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div>
+      <strong>Care Gap Closer</strong>
+      <span>MIT · Python · FastMCP · Google ADK · LiteLLM · FHIR R4</span>
+    </div>
+    <a href="https://github.com/amulyavarshney/Care-Gap-Closer" target="_blank" rel="noopener">github.com/amulyavarshney/Care-Gap-Closer</a>
+  </footer>
+
+  <script type="module" src="assets/playground.js"></script>
+</body>
+</html>

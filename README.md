@@ -10,7 +10,7 @@
 [![MCP](https://img.shields.io/badge/MCP-FastMCP-green)](https://gofastmcp.com/)
 [![A2A v1](https://img.shields.io/badge/A2A-v1-purple)](https://a2aproject.github.io/A2A/)
 
-[Quick Start](#-quick-start) · [Architecture](#-architecture) · [Tools](#-tools) · [Care Gaps](#-care-gaps-implemented) · [Make It Yours](#-make-it-yours) · [FAQ](#-faq--troubleshooting)
+[Playground](https://amulyavarshney.github.io/Care-Gap-Closer/) · [Quick Start](#-quick-start) · [Architecture](#-architecture) · [Tools](#-tools) · [Care Gaps](#-care-gaps-implemented) · [Make It Yours](#-make-it-yours) · [FAQ](#-faq--troubleshooting)
 
 ⭐ **If this is useful, star it — it helps other people building on FHIR + MCP find it.**
 
@@ -40,6 +40,14 @@ Ask it about a real (public, synthetic) patient and it comes back with this:
 The first message came from a **deterministic rule engine** reading real FHIR data — it can't hallucinate a gap. The second came from **Gemini**, which only ever writes about a gap that already exists. That split is the whole idea — see [Why this architecture](#why-split-rules-from-the-llm).
 
 Try it yourself in the next 2 minutes 👇
+
+### Browser playground
+
+A static UI with an **MCP Inspector** and **A2A agent demo** is published on GitHub Pages:
+
+**https://amulyavarshney.github.io/Care-Gap-Closer/**
+
+Demo mode runs fully in the browser against the Synthea patient from this README. Toggle **Live A2A endpoint** to point at a running agent (`uvicorn` locally or your Render URL) with `API_KEY_PRIMARY`.
 
 ---
 
@@ -335,6 +343,7 @@ Care-Gap-Closer/
 │   ├── prompts/           # Agent description, instructions, marketplace skills
 │   ├── routing/           # Intent → tool-chain mapping (audit trail)
 │   └── shared/            # FHIR context bridging, MCP tool wrappers
+├── docs/              # GitHub Pages playground (MCP Inspector + A2A demo)
 ├── render.yaml        # One-click deploy blueprint for Render.com
 └── DEMO_SCRIPT.md     # 3-minute demo video script
 ```

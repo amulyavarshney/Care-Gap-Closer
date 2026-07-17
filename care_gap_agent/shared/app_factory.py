@@ -50,6 +50,7 @@ Usage:
         require_api_key=False,
     )
 """
+import os
 from typing import Any
 
 from a2a.types import (
@@ -60,6 +61,7 @@ from a2a.types import (
 )
 from google.adk.a2a.utils.agent_to_a2a import to_a2a
 from pydantic import Field
+from starlette.middleware.cors import CORSMiddleware
 
 
 class AgentExtensionV1(AgentExtension):
@@ -207,4 +209,39 @@ def create_a2a_app(
     if require_api_key:
         app.add_middleware(ApiKeyMiddleware)
 
+    # CORS so the GitHub Pages playground (and local static previews) can call
+    # the agent from the browser. Last-added middleware is outermost in Starlette.
+    cors_origins = _cors_origins()
+    if cors_origins:
+        app.add_middleware(
+            CORSMiddleware,
+            allow_origins=cors_origins,
+            allow_credentials=True,
+            allow_methods=["*"],
+            allow_headers=["*"],
+        )
+
     return app
+
+
+def _cors_origins() -> list[str]:
+    """Origins allowed to call the agent from a browser.
+
+    Defaults cover the GitHub Pages playground and local static servers.
+    Override with CORS_ORIGINS as a comma-separated list, or set
+    CORS_ORIGINS=* to allow any origin (useful for demos only).
+    """
+    raw = os.getenv("CORS_ORIGINS", "").strip()
+    if raw == "*":
+        return ["*"]
+    if raw:
+        return [o.strip() for o in raw.split(",") if o.strip()]
+    return [
+        "https://amulyavarshney.github.io",
+        "http://127.0.0.1:5500",
+        "http://localhost:5500",
+        "http://127.0.0.1:4173",
+        "http://localhost:4173",
+        "http://127.0.0.1:3000",
+        "http://localhost:3000",
+    ]
