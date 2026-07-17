@@ -1,4 +1,4 @@
-/** Canned playground responses grounded in the project demo patient (Danae Kshlerin). */
+/** Canned playground responses for the demo patient (Danae Kshlerin). */
 
 export const PATIENT = {
   id: "87a339d0-8cae-418e-89c7-8651e6aab3c6",
@@ -12,7 +12,7 @@ export const TOOLS = [
   {
     name: "SummarizePatient",
     usesLlm: false,
-    description: "Demographics + computed age from the FHIR Patient resource.",
+    description: "Name, birth date, gender, and age from the FHIR Patient resource.",
     argsSchema: {},
     demo: () => ({
       status: "success",
@@ -26,7 +26,7 @@ export const TOOLS = [
   {
     name: "ListActiveConditions",
     usesLlm: false,
-    description: "Active problem list with SNOMED + ICD-10 codes.",
+    description: "Active problem list with SNOMED and ICD-10 codes.",
     argsSchema: {},
     demo: () => ({
       status: "success",
@@ -50,7 +50,7 @@ export const TOOLS = [
   {
     name: "ListRecentObservations",
     usesLlm: false,
-    description: "Recent labs, vitals, and screening procedures within N months.",
+    description: "Labs, vitals, and screening procedures from the last N months.",
     argsSchema: { months_back: 24 },
     demo: (args) => ({
       status: "success",
@@ -64,13 +64,13 @@ export const TOOLS = [
           date: "2024-11-03",
         },
       ],
-      note: "No HbA1c (LOINC 4548-4) in window — drives diabetes-a1c-overdue.",
+      note: "No HbA1c (LOINC 4548-4) in this window. That triggers diabetes-a1c-overdue.",
     }),
   },
   {
     name: "FindCareGaps",
     usesLlm: true,
-    description: "YAML rule engine flags overdue screenings; Gemini authors clinical rationale.",
+    description: "YAML rules flag overdue screenings. Gemini writes a one-sentence clinical rationale for each gap.",
     argsSchema: {},
     demo: () => ({
       status: "success",
@@ -90,7 +90,7 @@ export const TOOLS = [
             threshold_months: 6,
           },
           rationale:
-            "Patient has long-standing type 2 diabetes; over 5 years without monitoring puts her at high risk for unrecognized glycemic deterioration.",
+            "She has long-standing type 2 diabetes. More than 5 years without an A1c raises the risk of missed glycemic deterioration.",
         },
         {
           id: "colorectal-screening-overdue",
@@ -99,7 +99,7 @@ export const TOOLS = [
           uspstf_grade: "A",
           evidence: { age_in_range: true, procedures_found: 0 },
           rationale:
-            "Age 61 places her firmly in the screening window; no colonoscopy or FIT on file means cancer risk is unassessed.",
+            "At age 61 she is in the screening window. There is no colonoscopy or FIT on file.",
         },
         {
           id: "mammography-overdue",
@@ -108,7 +108,7 @@ export const TOOLS = [
           uspstf_grade: "B",
           evidence: { age_in_range: true, sex: "female", procedures_found: 0 },
           rationale:
-            "No mammogram on record for a 61-year-old woman — breast cancer screening is overdue under USPSTF guidance.",
+            "No mammogram on record for a 61-year-old woman. USPSTF guidance treats that as overdue.",
         },
       ],
     }),
@@ -116,7 +116,7 @@ export const TOOLS = [
   {
     name: "GetPatientRiskSummary",
     usesLlm: false,
-    description: "Severity rollup (risk_level + counts) without per-gap rationale.",
+    description: "Counts gaps by severity and returns a risk_level. Skips the per-gap rationale.",
     argsSchema: {},
     demo: () => ({
       status: "success",
@@ -128,7 +128,7 @@ export const TOOLS = [
   {
     name: "DraftOutreachMessage",
     usesLlm: true,
-    description: "Gemini drafts SMS/portal copy for a specific gap at ~sixth-grade reading level.",
+    description: "Gemini drafts SMS or portal copy for one gap, aimed at about a sixth-grade reading level.",
     argsSchema: {
       gap: {
         id: "diabetes-a1c-overdue",
@@ -141,9 +141,9 @@ export const TOOLS = [
     demo: (args) => {
       const channel = args.channel || "sms";
       const sms =
-        "Hi Danae — your last A1c blood test was a while back. A quick check-in helps us keep your diabetes on track. Call us at the clinic when you can, and we'll find a time that works.";
+        "Hi Danae, your last A1c blood test was a while back. A quick check-in helps us keep your diabetes on track. Call us at the clinic when you can, and we'll find a time that works.";
       const portal =
-        "Hi Danae,\n\nOur records show it has been several years since your last A1c blood test. This test helps us see how your diabetes is doing over time.\n\nPlease call the clinic when you can so we can schedule a convenient time. We're here to help.";
+        "Hi Danae,\n\nOur records show it has been several years since your last A1c blood test. This test helps us see how your diabetes is doing over time.\n\nPlease call the clinic when you can so we can schedule a time that works.";
       return {
         status: "success",
         channel,
@@ -170,25 +170,25 @@ export function demoAgentReply(text) {
         "Risk summary for Danae Kshlerin (61F):\n" +
         "• Overall risk level: high\n" +
         "• Open gaps: 3 (1 high, 2 medium)\n\n" +
-        "The high-severity item is the overdue HbA1c — I can pull full evidence or draft outreach next.",
+        "The high-severity item is the overdue HbA1c. I can pull the full evidence or draft outreach.",
     };
   }
   if (q.includes("sms") || q.includes("draft") || q.includes("outreach") || q.includes("portal")) {
     return {
       delayMs: 900,
       text:
-        "Drafted SMS for the HbA1c gap (≤160 chars):\n\n" +
-        "\"Hi Danae — your last A1c blood test was a while back. A quick check-in helps us keep your diabetes on track. Call us at the clinic when you can, and we'll find a time that works.\"\n\n" +
-        "Want a patient-portal version instead?",
+        "SMS for the HbA1c gap (under 160 characters):\n\n" +
+        "\"Hi Danae, your last A1c blood test was a while back. A quick check-in helps us keep your diabetes on track. Call us at the clinic when you can, and we'll find a time that works.\"\n\n" +
+        "I can also write a patient-portal version.",
     };
   }
   return {
     delayMs: 1100,
     text:
-      "Here's what I found for Danae Kshlerin (61F):\n" +
-      "• HbA1c overdue — last A1c was 65.8 months ago (Nov 2020). Patient has long-standing type 2 diabetes; over 5 years without monitoring puts her at high risk for unrecognized glycemic deterioration.\n" +
-      "• Colorectal screening overdue — no record on file.\n" +
-      "• Mammography overdue — no record on file.\n\n" +
-      "Want me to draft outreach for any of these?",
+      "For Danae Kshlerin (61F):\n" +
+      "• HbA1c overdue. Last A1c was 65.8 months ago (Nov 2020). She has long-standing type 2 diabetes. More than 5 years without monitoring raises the risk of missed glycemic deterioration.\n" +
+      "• Colorectal screening overdue. Nothing on file.\n" +
+      "• Mammography overdue. Nothing on file.\n\n" +
+      "I can draft outreach for any of these.",
   };
 }

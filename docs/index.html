@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Care Gap Closer — Playground</title>
-  <meta name="description" content="Interactive playground for the Care Gap Closer MCP server and A2A agent — find preventive care gaps in FHIR, draft outreach with Gemini." />
+  <title>Care Gap Closer playground</title>
+  <meta name="description" content="Try the Care Gap Closer MCP tools and A2A agent. Find overdue preventive care in FHIR, then draft patient outreach with Gemini." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
@@ -46,7 +46,7 @@
         <p class="eyebrow">MCP · A2A · FHIR R4 · Gemini</p>
         <h1 class="brand-hero">Care Gap Closer</h1>
         <p class="lede">
-          Find overdue preventive care in a patient's FHIR record — then write the outreach that closes it.
+          Read a patient's FHIR record for overdue preventive care. Draft the outreach that gets them back in.
         </p>
         <div class="cta-row">
           <a class="btn btn-primary" href="#playground">Open playground</a>
@@ -58,12 +58,12 @@
     <section id="playground" class="section playground">
       <div class="section-head">
         <h2>Playground</h2>
-        <p>Inspect MCP tools or chat with the A2A agent. Demo mode runs entirely in the browser; live mode talks to your deployed backends.</p>
+        <p>Run the MCP tools or chat with the A2A agent. Demo mode stays in the browser. Live mode calls a server you point it at.</p>
       </div>
 
       <div class="mode-bar" role="tablist" aria-label="Playground mode">
         <button class="mode-tab is-active" role="tab" aria-selected="true" data-panel="mcp">MCP Inspector</button>
-        <button class="mode-tab" role="tab" aria-selected="false" data-panel="a2a">A2A Agent Demo</button>
+        <button class="mode-tab" role="tab" aria-selected="false" data-panel="a2a">A2A agent demo</button>
       </div>
 
       <!-- MCP Inspector -->
@@ -71,7 +71,7 @@
         <aside class="tool-rail">
           <div class="rail-head">
             <h3>Tools</h3>
-            <span class="pill">6 registered</span>
+            <span class="pill">6 tools</span>
           </div>
           <ul id="tool-list" class="tool-list"></ul>
           <div class="rail-foot">
@@ -80,7 +80,7 @@
               <span>Live MCP endpoint</span>
             </label>
             <input id="mcp-url" class="field" type="url" placeholder="http://127.0.0.1:9000/mcp" disabled />
-            <p class="hint">Live MCP Streamable HTTP needs a CORS-enabled server. Demo responses match the Synthea patient below.</p>
+            <p class="hint">Live MCP over Streamable HTTP needs CORS on the server. Demo answers use the Synthea patient below.</p>
           </div>
         </aside>
 
@@ -101,7 +101,7 @@
           </div>
 
           <div id="tool-detail" class="tool-detail">
-            <p class="empty">Select a tool to inspect its schema and run it.</p>
+            <p class="empty">Pick a tool to see what it takes and what it returns.</p>
           </div>
 
           <div class="io-grid">
@@ -117,7 +117,7 @@
                 <h4>Response</h4>
                 <button id="copy-response" class="btn btn-small btn-ghost" type="button">Copy</button>
               </div>
-              <pre id="tool-response" class="code-area response">Select a tool and press Run.</pre>
+              <pre id="tool-response" class="code-area response">Pick a tool, then hit Run.</pre>
             </div>
           </div>
         </div>
@@ -128,7 +128,7 @@
         <div class="chat-shell">
           <div class="chat-side">
             <h3>care_gap_agent</h3>
-            <p class="side-copy">Google ADK + Gemini orchestrates MCP tools over A2A v1. Gaps are decided by rules; the model only authors rationale and outreach.</p>
+            <p class="side-copy">Google ADK and Gemini pick which MCP tools to call over A2A v1. YAML rules decide the gaps. The model writes the rationale and the patient message.</p>
             <div class="chip-row" id="prompt-chips"></div>
             <form class="live-config" autocomplete="off" onsubmit="return false;">
               <label class="switch">
@@ -140,13 +140,13 @@
               <label class="field-label" for="a2a-key">X-API-Key</label>
               <input id="a2a-key" class="field" type="password" placeholder="API_KEY_PRIMARY" disabled autocomplete="off" />
             </form>
-            <p class="hint">Demo mode streams the canned conversation from the project demo script. Live mode POSTs <code>message/send</code> with FHIR context metadata.</p>
+            <p class="hint">Demo mode plays the canned replies from the project demo script. Live mode POSTs <code>message/send</code> with FHIR context in the metadata.</p>
           </div>
 
           <div class="chat-main">
             <div id="chat-log" class="chat-log" aria-live="polite"></div>
             <form id="chat-form" class="chat-form">
-              <input id="chat-input" type="text" placeholder="Ask about care gaps or draft outreach…" autocomplete="off" />
+              <input id="chat-input" type="text" placeholder="Ask about gaps, or ask for an SMS draft" autocomplete="off" />
               <button class="btn btn-primary" type="submit">Send</button>
             </form>
           </div>
@@ -156,29 +156,29 @@
 
     <section id="architecture" class="section architecture">
       <div class="section-head">
-        <h2>How it splits the work</h2>
-        <p>Rule engines decide what is overdue. The LLM only writes about gaps that already exist.</p>
+        <h2>Who does what</h2>
+        <p>A YAML rule engine marks overdue care. Gemini writes the clinician rationale and the patient copy for those gaps.</p>
       </div>
       <div class="arch-flow" aria-hidden="false">
         <div class="arch-step">
           <span class="step-num">01</span>
           <h3>A2A agent</h3>
-          <p>Google ADK + Gemini picks tools and threads evidence across turns.</p>
+          <p>Google ADK and Gemini choose tools and carry evidence from one turn to the next.</p>
         </div>
         <div class="arch-step">
           <span class="step-num">02</span>
           <h3>MCP tools</h3>
-          <p>FastMCP reads FHIR R4 via SHARP headers — tokens never enter prompts.</p>
+          <p>FastMCP reads FHIR R4 through SHARP headers. FHIR tokens stay out of prompts.</p>
         </div>
         <div class="arch-step">
           <span class="step-num">03</span>
           <h3>YAML rules</h3>
-          <p>13 USPSTF/ACIP rules over SNOMED, LOINC, CPT, and CVX codes.</p>
+          <p>13 USPSTF and ACIP rules keyed to SNOMED, LOINC, CPT, and CVX codes.</p>
         </div>
         <div class="arch-step">
           <span class="step-num">04</span>
           <h3>Gemini authorship</h3>
-          <p>Clinical rationale + sixth-grade SMS/portal copy, with template fallbacks.</p>
+          <p>One-sentence clinical rationale, plus SMS or portal copy at about a sixth-grade reading level. Each rule has a template if Gemini is down.</p>
         </div>
       </div>
     </section>

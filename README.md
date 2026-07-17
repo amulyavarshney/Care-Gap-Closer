@@ -43,11 +43,11 @@ Try it yourself in the next 2 minutes 👇
 
 ### Browser playground
 
-A static UI with an **MCP Inspector** and **A2A agent demo** is published on GitHub Pages:
+Static UI with an MCP Inspector and A2A agent demo:
 
 **https://amulyavarshney.github.io/Care-Gap-Closer/**
 
-Demo mode runs fully in the browser against the Synthea patient from this README. Toggle **Live A2A endpoint** to point at a running agent (`uvicorn` locally or your Render URL) with `API_KEY_PRIMARY`.
+Demo mode stays in the browser and uses the Synthea patient from this README. Turn on **Live A2A endpoint** to hit a running agent (`uvicorn` locally or your Render URL) with `API_KEY_PRIMARY`.
 
 ---
 

@@ -50,7 +50,7 @@ function renderToolList() {
     const li = document.createElement("li");
     const btn = document.createElement("button");
     btn.type = "button";
-    btn.innerHTML = `<span class="tool-name">${tool.name}</span><span class="tool-meta">${tool.usesLlm ? "LLM authorship" : "Deterministic"}</span>`;
+    btn.innerHTML = `<span class="tool-name">${tool.name}</span><span class="tool-meta">${tool.usesLlm ? "Uses Gemini" : "Rules only"}</span>`;
     btn.addEventListener("click", () => selectTool(tool.name));
     li.appendChild(btn);
     list.appendChild(li);
@@ -70,7 +70,7 @@ function selectTool(name) {
   const response = $("tool-response");
 
   if (!tool) {
-    detail.innerHTML = `<p class="empty">Select a tool to inspect its schema and run it.</p>`;
+    detail.innerHTML = `<p class="empty">Pick a tool to see what it takes and what it returns.</p>`;
     args.disabled = true;
     run.disabled = true;
     return;
@@ -82,13 +82,13 @@ function selectTool(name) {
     <div class="badge-row">
       <span class="badge">${tool.usesLlm ? "Uses Gemini" : "No LLM"}</span>
       <span class="badge">SHARP FHIR headers</span>
-      ${tool.usesLlm ? `<span class="badge llm">Authorship only</span>` : ""}
+      ${tool.usesLlm ? `<span class="badge llm">Writes copy</span>` : ""}
     </div>
   `;
   args.value = JSON.stringify(tool.argsSchema, null, 2);
   args.disabled = false;
   run.disabled = false;
-  response.textContent = "Ready. Press Run tool.";
+  response.textContent = "Ready. Hit Run tool.";
   response.classList.remove("error", "loading");
 }
 
@@ -155,7 +155,7 @@ async function callLiveMcp(name, args) {
   const text = await res.text();
   if (!res.ok) {
     throw new Error(
-      `MCP HTTP ${res.status}. Browser→MCP often needs CORS + initialize handshake. Use demo mode or the official MCP Inspector locally.\n\n${text.slice(0, 500)}`
+      `MCP HTTP ${res.status}. From a browser you usually need CORS and an MCP initialize handshake. Stay in demo mode, or use the official MCP Inspector locally.\n\n${text.slice(0, 500)}`
     );
   }
   try {
@@ -225,7 +225,7 @@ function initChat() {
 
   appendMessage(
     "system",
-    `Demo patient: ${PATIENT.name} (${PATIENT.age}F) · SMART Health IT Synthea sandbox`
+    `Demo patient: ${PATIENT.name} (${PATIENT.age}F) on the SMART Health IT Synthea sandbox`
   );
 
   $("a2a-live-toggle").addEventListener("change", (e) => {
@@ -243,7 +243,7 @@ function initChat() {
     appendMessage("user", text);
 
     const live = $("a2a-live-toggle").checked;
-    const thinking = appendMessage("agent", live ? "Calling A2A agent…" : "Thinking…");
+    const thinking = appendMessage("agent", live ? "Calling the A2A agent…" : "Working…");
     thinking.classList.add("loading");
 
     try {
@@ -300,7 +300,7 @@ async function callLiveA2a(text) {
   const data = await res.json().catch(() => null);
   if (!res.ok) {
     throw new Error(
-      `A2A HTTP ${res.status}. If this is a CORS failure from GitHub Pages, enable CORS_ORIGINS on the agent.\n${JSON.stringify(data || {}, null, 2)}`
+      `A2A HTTP ${res.status}. If this failed on CORS from GitHub Pages, set CORS_ORIGINS on the agent.\n${JSON.stringify(data || {}, null, 2)}`
     );
   }
 
